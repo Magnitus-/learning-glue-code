@@ -1,0 +1,10 @@
+<network>
+    <name>openstack-internet</name>
+    <forward mode='nat' />
+    <bridge name='eth2' stp='on' delay='0' />
+    <ip address="10.10.10.1" netmask="255.255.255.0">
+        <dhcp>
+            <range start="10.10.10.2" end="10.10.10.254" />
+        </dhcp>
+    </ip>
+</network>

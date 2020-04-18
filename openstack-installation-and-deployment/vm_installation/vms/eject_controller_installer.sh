@@ -1,0 +1,1 @@
+virsh change-media controller hda --eject --config --live;

@@ -1,0 +1,16 @@
+virt-install \
+--hvm \
+--name=storage1 \
+--ram=4096 \
+--vcpus=1 \
+--cpu host-passthrough,cache.mode=passthrough \
+--disk size=20,path=$(pwd)/storage1.qcow2,bus=virtio \
+--disk path=./ubuntu/ubuntu-18.04.4-live-server-amd64.iso,device=cdrom \
+--os-type linux \
+--os-variant ubuntu18.04 \
+--arch x86_64 \
+--virt-type=kvm \
+--graphics vnc \
+--network network=openstack-provider \
+--network network=openstack-management \
+--network network=openstack-internet

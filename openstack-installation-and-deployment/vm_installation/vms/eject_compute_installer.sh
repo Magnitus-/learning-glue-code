@@ -1,0 +1,1 @@
+virsh change-media compute1 hda --eject --config --live;

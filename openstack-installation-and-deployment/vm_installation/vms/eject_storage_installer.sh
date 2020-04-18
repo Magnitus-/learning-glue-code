@@ -1,0 +1,1 @@
+virsh change-media storage1 hda --eject --config --live;
