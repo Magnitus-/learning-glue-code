@@ -1,6 +1,6 @@
 # About
 
-Corrections to the course material due to newer versions of Ubuntu, Openstack or other dependencies.
+Corrections to the course material due to newer versions of Ubuntu (18.04), Openstack (Train) or other dependencies.
 
 # Network Setup
 
@@ -68,3 +68,53 @@ network:
 ```
 
 3. Reboot each machine as shown in the lecture and proceed with the course
+
+# Openstack Client for Python 3
+
+In lecture 11, there are instructions to install the openstack client.
+
+With Ubuntu 18.04 and Train, the Python 3 implementation of the client should be installed:
+
+```
+apt install python3-openstackclient
+```
+
+Link: https://docs.openstack.org/install-guide/environment-packages-ubuntu.html#finalize-the-installation
+
+# Getting Etcd Binaries
+
+In the lecture 15, the instructions to get the etcd binary are dated.
+
+See the following instead: https://github.com/etcd-io/etcd/releases
+
+# Keystone Bootstrapping Adjustment
+
+
+In the lecture 17, a separate port is given for the admin url in the keystone bootstrap command.
+
+This is no longer required now that version 2 of the API (which required a separate port for the admin) is deprecated:
+
+```
+keystone-manage bootstrap --bootstrap-password openstack \
+  --bootstrap-admin-url http://controller:5000/v3/ \
+  --bootstrap-internal-url http://controller:5000/v3/ \
+  --bootstrap-public-url http://controller:5000/v3/ \
+  --bootstrap-region-id RegionOne
+```
+
+Link: https://docs.openstack.org/keystone/train/install/keystone-install-ubuntu.html
+
+# Keystone Environment Variables For Client
+
+In the lecture 18, the port for **OS_AUTH_URL** should be 5000.
+
+Link: https://docs.openstack.org/keystone/train/install/keystone-install-ubuntu.html
+
+# Placement Service
+
+Starting with the Stein release, an additional **placement** service needs to be deployed: https://docs.openstack.org/install-guide/openstack-services.html#minimal-deployment-for-train
+
+Should be done between lectures 22 and 23.
+
+Instructions can be found here: https://docs.openstack.org/placement/train/install/install-ubuntu.html
+
