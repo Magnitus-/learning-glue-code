@@ -83,9 +83,15 @@ Link: https://docs.openstack.org/install-guide/environment-packages-ubuntu.html#
 
 # Getting Etcd Binaries
 
-In the lecture 15, the instructions to get the etcd binary are dated.
+In the lecture 15, Kris gets a binary because the version in the Ubuntu repos is dated.
 
-See the following instead: https://github.com/etcd-io/etcd/releases
+With Ubuntu 18.04, the version in the repo is the same as the only getting installed.
+
+As such, you can skip the user create and the creation of the service file by running the following command:
+
+```
+apt install etcd
+```
 
 # Keystone Bootstrapping Adjustment
 
@@ -100,6 +106,12 @@ keystone-manage bootstrap --bootstrap-password openstack \
   --bootstrap-internal-url http://controller:5000/v3/ \
   --bootstrap-public-url http://controller:5000/v3/ \
   --bootstrap-region-id RegionOne
+```
+
+Also note that because Train runs on Python 3, the Python 3 version of mod wsgi should be installed:
+
+```
+apt install keystone apache2 libapache2-mod-wsgi-py3 crudini -y
 ```
 
 Link: https://docs.openstack.org/keystone/train/install/keystone-install-ubuntu.html
