@@ -122,6 +122,14 @@ In the lecture 18, the port for **OS_AUTH_URL** should be 5000.
 
 Link: https://docs.openstack.org/keystone/train/install/keystone-install-ubuntu.html
 
+# Glance Configuration
+
+Use the instructions in the link for the configuration (don't forget to replace the passwords by openstack).
+
+The configurations are a bit different and apparently, the glance registry has been deprecated since Queens.
+
+Link: https://docs.openstack.org/glance/train/install/install-ubuntu.html
+
 # Placement Service
 
 Starting with the Stein release, an additional **placement** service needs to be deployed: https://docs.openstack.org/install-guide/openstack-services.html#minimal-deployment-for-train
