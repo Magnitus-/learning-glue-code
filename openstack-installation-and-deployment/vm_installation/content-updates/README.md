@@ -2,6 +2,51 @@
 
 Corrections to the course material due to newer versions of Ubuntu (18.04), Openstack (Train) or other dependencies.
 
+# Disk resizing
+
+For some reason, the Ubuntu default installation didn't take advantage of the full disk size with logical volumes.
+
+You'll notice the problem if you get an output like this:
+
+```
+lsblk 
+NAME                      MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+loop0                       7:0    0 93.8M  1 loop /snap/core/8935
+loop1                       7:1    0 93.9M  1 loop /snap/core/9066
+sr0                        11:0    1 1024M  0 rom  
+vda                       252:0    0   20G  0 disk 
+├─vda1                    252:1    0    1M  0 part 
+├─vda2                    252:2    0    1G  0 part /boot
+└─vda3                    252:3    0   19G  0 part 
+  └─ubuntu--vg-ubuntu--lv 253:0    0    4G  0 lvm  /
+```
+
+In the above case, the **ubuntu--vg-ubuntu--lv** logical volume only occupies 4GB of a 19GB partition.
+
+You can correct the above by typing the following to extend the logical volume:
+
+```
+lvextend -l +100%FREE /dev/mapper/ubuntu--vg-ubuntu--lv
+```
+
+To make the filesystem report the new size, first find out the kind of filesystem you have by typing:
+
+```
+df -hT
+```
+
+If you have ext4, type:
+
+```
+resize2fs /dev/mapper/ubuntu--vg-ubuntu--lv
+```
+
+If you have xfs, type:
+
+```
+xfs_growfs /
+```
+
 # Network Setup
 
 In the lecture 9, after disabling the Ubuntu default setup for the network interfaces, Kris edits the **/etc/network/interfaces** file.
