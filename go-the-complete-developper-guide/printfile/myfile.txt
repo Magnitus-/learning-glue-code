@@ -1,0 +1,7 @@
+I am learning golang right now.
+
+It is progressing well.
+
+However, I feel like the course should cover writing packages and vendoring.
+
+Oh well, I guess I'll learn that as I go along.
