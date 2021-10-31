@@ -66,13 +66,11 @@ func (s *CalculatorServer) Max(stream protocol.CalculatorService_MaxServer) erro
 		if err != nil {
 			return err
 		}
-		if first {
+		if first || max < req.GetNumber() {
 			max = req.GetNumber()
+			stream.Send(&protocol.MaxResponse{Max: max})
 			first = false
-		} else if max < req.GetNumber() {
-			max = req.GetNumber()
 		}
-		stream.Send(&protocol.MaxResponse{Max: max})
 	}
 	return nil
 }

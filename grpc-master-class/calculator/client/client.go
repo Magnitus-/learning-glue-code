@@ -85,15 +85,32 @@ func Max(c protocol.CalculatorServiceClient, numbers []int64) {
 	if err != nil {
 		log.Fatalf("Error requesting max: %v", err)
 	}
-	for _, n := range numbers {
-		err := stream.Send(&protocol.MaxRequest{Number: n})
-		if err != nil {
-			log.Fatalf("Error sending max sample point: %v", err)
+
+	stop := make(chan struct {})
+
+	go func() {
+		for _, n := range numbers {
+			err := stream.Send(&protocol.MaxRequest{Number: n})
+			if err != nil {
+				log.Fatalf("Error sending max sample point: %v", err)
+			}
 		}
-		res, recvErr := stream.Recv()
-		if recvErr != nil {
-			log.Fatalf("Error receiving latest max: %v", recvErr)
+		stream.CloseSend()
+	}()
+
+	go func() {
+		for {
+			res, recvErr := stream.Recv()
+			if recvErr == io.EOF {
+				break
+			}
+			if recvErr != nil {
+				log.Fatalf("Error receiving latest max: %v", recvErr)
+			}
+			fmt.Printf("Received server response: %d\n", res.GetMax())
 		}
-		fmt.Printf("Received server response: %d\n", res.GetMax())
-	}
+		close(stop)
+	}()
+
+	<-stop
 }
