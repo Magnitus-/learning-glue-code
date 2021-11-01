@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
 
 	"calculator/protocol"
 	"google.golang.org/grpc"
@@ -37,9 +38,21 @@ func main() {
 func Sum(c protocol.CalculatorServiceClient, left int64, right int64) {
 	fmt.Println("Sum RPC...")
 	req := &protocol.SumRequest{Left: left, Right: right}
-	res, err := c.Sum(context.Background(), req)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	res, err := c.Sum(ctx, req)
 	if err != nil {
-		log.Fatalf("Error requesting sum: %v", err)
+		statusErr, ok := status.FromError(err)
+		if ok {
+			if statusErr.Code() == codes.DeadlineExceeded {
+				fmt.Println("Request timed out")
+			} else {
+				fmt.Printf("Unforeseen grpc error: %v\n", statusErr)
+			}
+		} else {
+			log.Fatalf("Error requesting sum: %v", err)
+		}
+		return
 	}
 	fmt.Printf("Server response was: %d \n", res.GetResult())
 }
@@ -47,9 +60,21 @@ func Sum(c protocol.CalculatorServiceClient, left int64, right int64) {
 func PrimeDecomposition(c protocol.CalculatorServiceClient, number int64) {
 	fmt.Println("Prime Decomposition RPC...")
 	req := &protocol.PrimeDecompositionRequest{Number: number}
-	resStream, err := c.PrimeDecomposition(context.Background(), req)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	resStream, err := c.PrimeDecomposition(ctx, req)
 	if err != nil {
-		log.Fatalf("Error requesting prime decomposition: %v", err)
+		statusErr, ok := status.FromError(err)
+		if ok {
+			if statusErr.Code() == codes.DeadlineExceeded {
+				fmt.Println("Request timed out")
+			} else {
+				fmt.Printf("Unforeseen grpc error: %v\n", statusErr)
+			}
+		} else {
+			log.Fatalf("Error requesting prime decomposition: %v", err)
+		}
+		return
 	}
 	for {
 		msg, err := resStream.Recv()
@@ -57,7 +82,17 @@ func PrimeDecomposition(c protocol.CalculatorServiceClient, number int64) {
 			break;
 		}
 		if err != nil {
-			log.Fatalf("Error while reading prime decomposition reply: %v", err)
+			statusErr, ok := status.FromError(err)
+			if ok {
+				if statusErr.Code() == codes.DeadlineExceeded {
+					fmt.Println("Request timed out")
+				} else {
+					fmt.Printf("Unforeseen grpc error: %v\n", statusErr)
+				}
+			} else {
+				log.Fatalf("Error while reading prime decomposition reply: %v", err)
+			}
+			return
 		}
 		fmt.Printf("Received server response: %d\n", msg.GetDivisor())
 	}
@@ -65,29 +100,73 @@ func PrimeDecomposition(c protocol.CalculatorServiceClient, number int64) {
 
 func Average(c protocol.CalculatorServiceClient, numbers []int64) {
 	fmt.Println("Average RPC...")
-	stream, err := c.Average(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	stream, err := c.Average(ctx)
 	if err != nil {
-		log.Fatalf("Error requesting average: %v", err)
+		statusErr, ok := status.FromError(err)
+		if ok {
+			if statusErr.Code() == codes.DeadlineExceeded {
+				fmt.Println("Request timed out")
+			} else {
+				fmt.Printf("Unforeseen grpc error: %v\n", statusErr)
+			}
+		} else {
+			log.Fatalf("Error requesting average: %v", err)
+		}
+		return
 	}
 	for _, n := range numbers {
 		err := stream.Send(&protocol.AverageRequest{Number: n})
 		if err != nil {
-			log.Fatalf("Error sending average sample point: %v", err)
+			statusErr, ok := status.FromError(err)
+			if ok {
+				if statusErr.Code() == codes.DeadlineExceeded {
+					fmt.Println("Request timed out")
+				} else {
+					fmt.Printf("Unforeseen grpc error: %v\n", statusErr)
+				}
+			} else {
+				log.Fatalf("Error sending average sample point: %v", err)
+			}
+			return
 		}
 	}
 
 	res, err := stream.CloseAndRecv()
 	if err != nil {
-		log.Fatalf("Error receiving average: %v", err)
+		statusErr, ok := status.FromError(err)
+		if ok {
+			if statusErr.Code() == codes.DeadlineExceeded {
+				fmt.Println("Request timed out")
+			} else {
+				fmt.Printf("Unforeseen grpc error: %v\n", statusErr)
+			}
+		} else {
+			log.Fatalf("Error receiving average: %v", err)
+		}
+		return
 	}
 	fmt.Printf("Received server response: %f\n", res.GetAverage())
 }
 
 func Max(c protocol.CalculatorServiceClient, numbers []int64) {
 	fmt.Println("Average RPC...")
-	stream, err := c.Max(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	stream, err := c.Max(ctx)
 	if err != nil {
-		log.Fatalf("Error requesting max: %v", err)
+		statusErr, ok := status.FromError(err)
+		if ok {
+			if statusErr.Code() == codes.DeadlineExceeded {
+				fmt.Println("Request timed out")
+			} else {
+				fmt.Printf("Unforeseen grpc error: %v\n", statusErr)
+			}
+		} else {
+			log.Fatalf("Error requesting max: %v", err)
+		}
+		return
 	}
 
 	stop := make(chan struct {})
@@ -96,7 +175,18 @@ func Max(c protocol.CalculatorServiceClient, numbers []int64) {
 		for _, n := range numbers {
 			err := stream.Send(&protocol.MaxRequest{Number: n})
 			if err != nil {
-				log.Fatalf("Error sending max sample point: %v", err)
+				statusErr, ok := status.FromError(err)
+				if ok {
+					if statusErr.Code() == codes.DeadlineExceeded {
+						fmt.Println("Request timed out")
+					} else {
+						fmt.Printf("Unforeseen grpc error: %v\n", statusErr)
+					}
+				} else {
+					log.Fatalf("Error sending max sample point: %v", err)
+				}
+				stream.CloseSend()
+				return
 			}
 		}
 		stream.CloseSend()
@@ -109,7 +199,18 @@ func Max(c protocol.CalculatorServiceClient, numbers []int64) {
 				break
 			}
 			if recvErr != nil {
-				log.Fatalf("Error receiving latest max: %v", recvErr)
+				statusErr, ok := status.FromError(recvErr)
+				if ok {
+					if statusErr.Code() == codes.DeadlineExceeded {
+						fmt.Println("Request timed out")
+					} else {
+						fmt.Printf("Unforeseen grpc error: %v\n", statusErr)
+					}
+				} else {
+					log.Fatalf("Error receiving latest max: %v", recvErr)
+				}
+				close(stop)
+				return
 			}
 			fmt.Printf("Received server response: %d\n", res.GetMax())
 		}
@@ -121,7 +222,9 @@ func Max(c protocol.CalculatorServiceClient, numbers []int64) {
 
 func SquareRoot(c protocol.CalculatorServiceClient, number int64) {
 	fmt.Println("Square Root RPC...")
-	res, err := c.SquareRoot(context.Background(), &protocol.SquareRootRequest{Number: number})
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	res, err := c.SquareRoot(ctx, &protocol.SquareRootRequest{Number: number})
 	
 	if err != nil {
 		resErr, ok := status.FromError(err)
@@ -131,6 +234,10 @@ func SquareRoot(c protocol.CalculatorServiceClient, number int64) {
 			fmt.Println("Error Code: ", resErr.Code())
 			if resErr.Code() == codes.InvalidArgument {
 				fmt.Println("Square root argument must be greater or equal to 0")
+			} else if resErr.Code() == codes.DeadlineExceeded {
+				fmt.Println("Request timed out")
+			} else {
+				fmt.Printf("Uknown grpc error %v\n", resErr)
 			}
 		} else {
 			log.Fatalf("Error getting square root: %v", resErr)

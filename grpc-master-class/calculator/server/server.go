@@ -17,6 +17,10 @@ import (
 type CalculatorServer struct {}
 
 func (s *CalculatorServer) Sum(ctx context.Context, req *protocol.SumRequest) (*protocol.SumResponse, error) {
+	if ctx.Err() == context.Canceled {
+		fmt.Println("The client canceled the request")
+		return nil, status.Error(codes.Canceled, "the client canceled the request")
+	}
 	return &protocol.SumResponse{Result: req.GetLeft() + req.GetRight()}, nil
 }
 
@@ -26,6 +30,10 @@ func (s *CalculatorServer) PrimeDecomposition(req *protocol.PrimeDecompositionRe
     for n > 1 {
 		if n % k == 0 {
 			res := &protocol.PrimeDecompositionResponse{Divisor: k}
+			if stream.Context().Err() == context.Canceled {
+				fmt.Println("The client canceled the request")
+				return status.Error(codes.Canceled, "the client canceled the request")
+			}
 			stream.Send(res)
 			n = n / k
 		} else {
@@ -45,6 +53,10 @@ func (s *CalculatorServer) Average(stream protocol.CalculatorService_AverageServ
 			average := float64(-1)
 			if count > 0 {
 				average = float64(sum) / float64(count)
+			}
+			if stream.Context().Err() == context.Canceled {
+				fmt.Println("The client canceled the request")
+				return status.Error(codes.Canceled, "the client canceled the request")
 			}
 			return stream.SendAndClose(&protocol.AverageResponse{Average: average})
 		}
@@ -71,6 +83,10 @@ func (s *CalculatorServer) Max(stream protocol.CalculatorService_MaxServer) erro
 		}
 		if first || max < req.GetNumber() {
 			max = req.GetNumber()
+			if stream.Context().Err() == context.Canceled {
+				fmt.Println("The client canceled the request")
+				return status.Error(codes.Canceled, "the client canceled the request")
+			}
 			stream.Send(&protocol.MaxResponse{Max: max})
 			first = false
 		}
@@ -87,6 +103,10 @@ func (s *CalculatorServer) SquareRoot(ctx context.Context, req *protocol.SquareR
 		)
 	}
 
+	if ctx.Err() == context.Canceled {
+		fmt.Println("The client canceled the request")
+		return nil, status.Error(codes.Canceled, "the client canceled the request")
+	}
 	return &protocol.SquareRootResponse{Root: math.Sqrt(float64(number))}, nil
 }
 
