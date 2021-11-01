@@ -6,9 +6,12 @@ import (
 	"io"
 	"net"
 	"log"
+	"math"
 
 	"calculator/protocol"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type CalculatorServer struct {}
@@ -73,6 +76,18 @@ func (s *CalculatorServer) Max(stream protocol.CalculatorService_MaxServer) erro
 		}
 	}
 	return nil
+}
+
+func (s *CalculatorServer) SquareRoot(ctx context.Context, req *protocol.SquareRootRequest) (*protocol.SquareRootResponse, error) {
+	number := req.GetNumber()
+	if number < 0 {
+		return nil, status.Errorf(
+			codes.InvalidArgument,
+			fmt.Sprintf("Received negative number: %d", number),
+		)
+	}
+
+	return &protocol.SquareRootResponse{Root: math.Sqrt(float64(number))}, nil
 }
 
 func main() {

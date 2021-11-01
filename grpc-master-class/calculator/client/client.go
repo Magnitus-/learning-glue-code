@@ -8,6 +8,8 @@ import (
 
 	"calculator/protocol"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/status"
+	"google.golang.org/grpc/codes"
 )
 
 func main() {
@@ -28,6 +30,8 @@ func main() {
 	Average(c, []int64{int64(1), int64(4), int64(5)})
 	Average(c, []int64{int64(2), int64(7)})
 	Max(c, []int64{int64(2), int64(7), int64(3), int64(9), int64(4), int64(11)})
+	SquareRoot(c, 9)
+	SquareRoot(c, -4)
 }
 
 func Sum(c protocol.CalculatorServiceClient, left int64, right int64) {
@@ -113,4 +117,26 @@ func Max(c protocol.CalculatorServiceClient, numbers []int64) {
 	}()
 
 	<-stop
+}
+
+func SquareRoot(c protocol.CalculatorServiceClient, number int64) {
+	fmt.Println("Square Root RPC...")
+	res, err := c.SquareRoot(context.Background(), &protocol.SquareRootRequest{Number: number})
+	
+	if err != nil {
+		resErr, ok := status.FromError(err)
+		if ok {
+			//grpc format error
+			fmt.Println("Error message: ", resErr.Message())
+			fmt.Println("Error Code: ", resErr.Code())
+			if resErr.Code() == codes.InvalidArgument {
+				fmt.Println("Square root argument must be greater or equal to 0")
+			}
+		} else {
+			log.Fatalf("Error getting square root: %v", resErr)
+		}
+		return
+	}
+
+	fmt.Printf("Received server response: %f\n", res.GetRoot())
 }
